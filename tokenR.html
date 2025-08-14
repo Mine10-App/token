@@ -3,12 +3,62 @@
 <head>
   <meta charset="UTF-8">
   <title>Room Token Entry</title>
-  <style>
-    body { font-family:sans-serif; text-align:center; margin-top:50px; }
-    input[type=number] { font-size:20px; width:100px; text-align:center; }
-    button { font-size:20px; padding:10px 20px; margin:5px; cursor:pointer; }
-    #status { color:green; margin-top:20px; font-weight:bold; }
-    #currentToken { font-size:48px; margin-top:20px; }
+ <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #e0f7fa, #80deea);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      text-align: center;
+      width: 400px;
+    }
+    h1 {
+      color: #00796b;
+      margin-bottom: 30px;
+    }
+    input[type=number] {
+      width: 100px;
+      padding: 10px;
+      font-size: 20px;
+      border-radius: 10px;
+      border: 2px solid #00796b;
+      text-align: center;
+      margin: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      margin: 10px;
+      border-radius: 10px;
+      border: none;
+      background: #00796b;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #004d40;
+    }
+    #counter {
+      font-size: 60px;
+      margin: 20px 0;
+      color: #00796b;
+      font-weight: bold;
+    }
+    #status {
+      margin-top: 10px;
+      color: green;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -141,4 +191,5 @@
   </script>
 </body>
 </html>
+
 
