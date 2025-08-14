@@ -101,9 +101,14 @@
         roomListDiv.innerHTML = `<tr><td colspan="2">No active tokens</td></tr>`;
       }
     });
+    // Unlock audio on first click
+  document.body.addEventListener("click", () => {
+    alertSound.play().catch(()=>{});
+  }, { once: true });
   </script>
 </body>
 </html>
+
 
 
 
