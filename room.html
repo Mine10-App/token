@@ -2,45 +2,52 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Token Entry</title>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <title>Room Token Entry</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #e0f7fa, #80deea);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+      background: #f5f6fa;
       margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-end;
+      padding: 20px;
     }
     .container {
       background: white;
-      padding: 40px;
-      border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+      width: 260px;
       text-align: center;
-      width: 400px;
+      border: 1px solid #ddd;
     }
     h1 {
+      font-size: 18px;
       color: #00796b;
-      margin-bottom: 30px;
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 5px;
+      color: #555;
     }
     input[type=number] {
-      width: 100px;
-      padding: 10px;
-      font-size: 20px;
-      border-radius: 10px;
-      border: 2px solid #00796b;
+      width: 90%;
+      padding: 6px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #00796b;
       text-align: center;
-      margin: 10px;
+      margin-bottom: 10px;
     }
     button {
-      padding: 10px 20px;
-      font-size: 18px;
-      margin: 10px;
-      border-radius: 10px;
+      padding: 6px 12px;
+      font-size: 14px;
+      margin: 5px;
+      border-radius: 8px;
       border: none;
       background: #00796b;
       color: white;
@@ -50,37 +57,46 @@
     button:hover {
       background: #004d40;
     }
-    #counter {
-      font-size: 60px;
-      margin: 20px 0;
+    #currentToken {
+      font-size: 36px;
+      margin: 10px 0;
       color: #00796b;
       font-weight: bold;
     }
     #status {
-      margin-top: 10px;
+      margin-top: 5px;
+      font-size: 12px;
       color: green;
       font-weight: bold;
     }
   </style>
 </head>
 <body>
+
   <div class="container">
-    <h1>Token Entry</h1>
+    <h1>Room Token Entry</h1>
+
+    <label>Room Number:</label>
+    <input type="number" id="roomNumberInput" placeholder="Enter Room Number">
+
+    <div id="currentToken">0</div>
+
     <div>
-      <input type="number" id="setRoomNumberInput" placeholder="Room No">
-      <button id="setRoomBtn">Set Room</button>
-    </div>
-    <div id="counter">0</div>
-    <div>
-      <button id="increaseBtn">Next Token</button>
+      <button id="nextBtn">Next</button>
       <button id="resetBtn">Reset</button>
     </div>
+
     <div>
       <input type="number" id="setNumberInput" placeholder="Set Token">
-      <button id="setBtn">Set Token</button>
+      <button id="setBtn">Set</button>
     </div>
+
     <div id="status"></div>
   </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
   <script>
     const firebaseConfig = {
@@ -93,48 +109,86 @@
       measurementId: "G-15WXNEPKS9"
     };
 
-    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
     let currentRoom = "";
-    let currentValue = 0;
+    let currentToken = 0;
 
-    function updateCounter(newVal) {
-      currentValue = newVal;
-      document.getElementById("counter").innerText = currentValue;
-      if(currentRoom){
-        db.collection("rooms").doc(currentRoom).set({ token: currentValue })
-          .then(() => {
-            document.getElementById("status").innerText = "Updated!";
-            setTimeout(() => { document.getElementById("status").innerText = ""; }, 1500);
-          })
-          .catch(err => console.error(err));
+    const roomInput = document.getElementById("roomNumberInput");
+    const currentTokenDiv = document.getElementById("currentToken");
+
+    function updateStatus(msg) {
+      document.getElementById("status").innerText = msg;
+      setTimeout(() => { document.getElementById("status").innerText = ""; }, 1500);
+    }
+
+    const passwordKey = "tokenPagePassword";
+    const passwordValue = "Tokensystem11";
+
+    function checkPassword() {
+      const stored = localStorage.getItem(passwordKey);
+      if(stored === passwordValue) return true;
+      let attempt = prompt("Enter password to access this page:");
+      if(attempt === passwordValue){
+        localStorage.setItem(passwordKey, passwordValue);
+        return true;
+      } else {
+        alert("Wrong password! You cannot access this page.");
+        window.location.href = "https://www.google.com";
+        return false;
       }
     }
 
-    document.getElementById("setRoomBtn").onclick = () => {
-      const roomInput = document.getElementById("setRoomNumberInput").value.trim();
-      if(roomInput){
-        currentRoom = roomInput;
-        // Load existing token for room
-        db.collection("rooms").doc(currentRoom).get().then(doc => {
-          if(doc.exists){
-            currentValue = doc.data().token || 0;
-            document.getElementById("counter").innerText = currentValue;
-          } else {
-            currentValue = 0;
-            document.getElementById("counter").innerText = 0;
-          }
-        });
-      }
+    if(!checkPassword()) throw new Error("Access denied");
+
+    function loadRoomToken(room) {
+      if (!room) return;
+      const docRef = db.collection("rooms").doc(room);
+      docRef.get().then(doc => {
+        if(doc.exists){
+          currentToken = doc.data().token || 0;
+        } else {
+          currentToken = 0;
+        }
+        currentTokenDiv.innerText = currentToken;
+      });
+    }
+
+    function saveToken() {
+      if (!currentRoom) return;
+      db.collection("rooms").doc(currentRoom).set({ token: currentToken })
+        .then(() => updateStatus("Token updated!"))
+        .catch(err => console.error(err));
+    }
+
+    roomInput.onchange = () => {
+      currentRoom = roomInput.value.trim();
+      loadRoomToken(currentRoom);
     };
 
-    document.getElementById("increaseBtn").onclick = () => updateCounter(currentValue + 1);
-    document.getElementById("resetBtn").onclick = () => updateCounter(0);
+    document.getElementById("nextBtn").onclick = () => {
+      if(!currentRoom){ alert("Enter room number first"); return; }
+      currentToken++;
+      currentTokenDiv.innerText = currentToken;
+      saveToken();
+    };
+
+    document.getElementById("resetBtn").onclick = () => {
+      if(!currentRoom){ alert("Enter room number first"); return; }
+      currentToken = 0;
+      currentTokenDiv.innerText = currentToken;
+      saveToken();
+    };
+
     document.getElementById("setBtn").onclick = () => {
+      if(!currentRoom){ alert("Enter room number first"); return; }
       const num = parseInt(document.getElementById("setNumberInput").value);
-      if(!isNaN(num)) updateCounter(num);
+      if(isNaN(num)){ alert("Enter a valid token number"); return; }
+      currentToken = num;
+      currentTokenDiv.innerText = currentToken;
+      saveToken();
+      document.getElementById("setNumberInput").value = "";
     };
   </script>
 </body>
