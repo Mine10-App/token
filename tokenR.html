@@ -63,7 +63,28 @@
       setTimeout(() => { document.getElementById("status").innerText = ""; }, 1500);
     }
 
-    // Load current token for room
+    // 🔹 PASSWORD PROTECTION
+    const passwordKey = "tokenPagePassword";
+    const passwordValue = "1234"; // set your password here
+
+    function checkPassword() {
+      const stored = localStorage.getItem(passwordKey);
+      if(stored === passwordValue) return true;
+
+      let attempt = prompt("Enter password to access this page:");
+      if(attempt === passwordValue){
+        localStorage.setItem(passwordKey, passwordValue);
+        return true;
+      } else {
+        alert("Wrong password! You cannot access this page.");
+        window.location.href = "https://www.google.com"; // redirect away
+        return false;
+      }
+    }
+
+    if(!checkPassword()) throw new Error("Access denied");
+
+    // 🔹 Load token for room
     function loadRoomToken(room) {
       if (!room) return;
       const docRef = db.collection("rooms").doc(room);
@@ -77,7 +98,7 @@
       });
     }
 
-    // Set token in Firestore
+    // 🔹 Save token to Firestore
     function saveToken() {
       if (!currentRoom) return;
       db.collection("rooms").doc(currentRoom).set({ token: currentToken })
