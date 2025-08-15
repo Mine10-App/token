@@ -103,8 +103,49 @@ video, img {
 <div class="right">
   <div id="bottomContent">
    
-    <!-- Replace 'ad.mp4' with the path to your local video -->
-    <video src="ad.mp4" autoplay muted loop></video>
+   <div class="slideshow">
+  <img src="C:\Users\Acer\Downloads\slide1.jpg" alt="Health Tip 1">
+  <img src="C:\Users\Acer\Downloads\slide2.jpg" alt="Health Tip 2">
+  <img src="C:\Users\Acer\Downloads\slide3.png" alt="Health Tip 3">
+  <img src="C:\Users\Acer\Downloads\slide4.jpg" alt="Health Tip 3">
+  <img src="C:\Users\Acer\Downloads\slide5.jpg" alt="Health Tip 3">
+</div>
+
+<style>
+.slideshow {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  height: 450px;
+  overflow: hidden;
+}
+
+.slideshow img {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+}
+
+.slideshow img.active {
+  opacity: 1;
+}
+</style>
+
+<script>
+let slides = document.querySelectorAll('.slideshow img');
+let current = 0;
+slides[current].classList.add('active');
+
+setInterval(() => {
+  slides[current].classList.remove('active');
+  current = (current + 1) % slides.length;
+  slides[current].classList.add('active');
+}, 3000); // Change slide every 3 seconds
+</script>
   </div>
 
   <audio id="alertSound" src="https://mine10-app.github.io/token/Ding.mp3"></audio>
@@ -180,6 +221,7 @@ video, img {
   </script>
 </body>
 </html>
+
 
 
 
