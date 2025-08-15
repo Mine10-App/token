@@ -88,6 +88,30 @@ video, img {
     from { background-color: rgb(243, 8, 8); color: rgb(255, 255, 255); }  /* start color */
     to { background-color: white; color: black; }  /* end color */
     }
+   /* Slideshow container fits panel */
+  .slideshow {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    aspect-ratio: 16/9; /* keeps proportion */
+    max-height: 100%;
+    overflow: hidden;
+    border-radius: 10px;
+  }
+
+  .slideshow img {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* show full image without cropping */
+    background: black;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+  }
+
+  .slideshow img.active {
+    opacity: 1;
+  }
 </style>
 </head>
 <body>
@@ -111,50 +135,14 @@ video, img {
 <div class="right">
   <div id="bottomContent">
    
-<style>
-  body {
-    background: #f0f8ff;
-    text-align: center;
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-  }
-  h1 {
-    padding: 10px;
-  }
-  .slideshow {
-    position: relative;
-    width: 33.33%; 
-    max-width: 100px;  /* max size on big screens */
-    margin: auto;
-    aspect-ratio: 16/9; /* keeps proportions */
-    overflow: hidden;
-    border-radius: 10px;
-  }
-  .slideshow img {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    object-fit: contain; /* show full image without cropping */
-    background: #000; /* black bars if needed */
-    opacity: 0;
-    transition: opacity 1s ease-in-out;
-  }
-  .slideshow img.active {
-    opacity: 1;
-  }
-</style>
-</head>
-<body>
 
-<h1>General Health Awareness</h1>
-
-<div class="slideshow">
-  <img src="Slide1.jpg" alt="Slide 1">
-  <img src="Slide2.jpg" alt="Slide 2">
-  <img src="Slide3.jpg" alt="Slide 3">
-  <img src="Slide4.jpg" alt="Slide 4">
-  <img src="Slide5.jpg" alt="Slide 5">
+ <div class="slideshow">
+    <img src="Slide1.jpg" alt="Slide 1">
+    <img src="Slide2.jpg" alt="Slide 2">
+    <img src="Slide3.jpg" alt="Slide 3">
+    <img src="Slide4.jpg" alt="Slide 4">
+    <img src="Slide5.jpg" alt="Slide 5">
+  </div>
 </div>
 
 <script>
@@ -245,6 +233,7 @@ setInterval(() => {
   </script>
 </body>
 </html>
+
 
 
 
