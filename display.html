@@ -77,8 +77,8 @@ video, img {
       animation: flashAnim 0.4s ease-in-out alternate 4;
     }
     @keyframes flashAnim {
-      from { color: red; }
-      to { color: black; }
+    from { background-color: yellow; color: red; }  /* start color */
+    to { background-color: white; color: black; }  /* end color */
     }
 </style>
 </head>
@@ -89,7 +89,7 @@ video, img {
   <table>
      
     <thead>
-    <img src="LOGOFAROOK.jpg" alt="My Image" width="300" height="200">
+    <img src="LOGOFAROOK.jpg" alt="Description of image">
       <tr>
         <th>Room</th>
         <th>Token</th>
@@ -163,7 +163,7 @@ video, img {
             setTimeout(()=>{ 
                 tdToken.classList.remove("flash");
                 tdRoom.classList.remove("flash");
-            }, 900); // 0.3s * 3 iterations
+            }, 1800); // 0.3s * 3 iterations
           }
           previousTokens[roomNumber] = token;
         }
@@ -180,7 +180,6 @@ video, img {
   </script>
 </body>
 </html>
-
 
 
 
