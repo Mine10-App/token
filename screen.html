@@ -15,11 +15,19 @@
       50% { background-color: black; color: white; }
       100% { background-color: red; color: white; }
     }
-    #bottomContent { margin-top:30px; display: flex; justify-content: center; align-items: flex-start; gap:20px; }
-    #textContent {
-  width: 100vw;           /* viewport width */
-  margin: 0;
-  padding: 2px;
+    #bottomContent {
+  width: 100%;                  /* full width of page */
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;      /* center items horizontally */
+  align-items: flex-start;      /* align items at the top */
+  gap: 20px;                    /* spacing between items */
+  box-sizing: border-box;
+  padding: 0 10px;
+}
+
+#textContent {
+  flex: 1;                      /* take up all available space in the flex container */
   text-align: center;
   font-size: 20px;
 }
