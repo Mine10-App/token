@@ -136,15 +136,17 @@ video, img {
 </style>
 
 <script>
-let slides = document.querySelectorAll('.slideshow img');
-let current = 0;
-slides[current].classList.add('active');
-
-setInterval(() => {
-  slides[current].classList.remove('active');
-  current = (current + 1) % slides.length;
+window.onload = function() {
+  let slides = document.querySelectorAll('.slideshow img');
+  let current = 0;
   slides[current].classList.add('active');
-}, 3000); // Change slide every 3 seconds
+
+  setInterval(() => {
+    slides[current].classList.remove('active');
+    current = (current + 1) % slides.length;
+    slides[current].classList.add('active');
+  }, 3000);
+};
 </script>
   </div>
 
@@ -221,6 +223,7 @@ setInterval(() => {
   </script>
 </body>
 </html>
+
 
 
 
