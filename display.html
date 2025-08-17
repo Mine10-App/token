@@ -1,198 +1,122 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <title>Live Room Tokens Display</title>
 <style>
-  body {
-    margin: 0;
-    height: 100vh;
-    display: flex;
-    font-family: Arial, sans-serif;
-  }
-
-  /* Left table panel */
-  .left {
-    width: 40%;           /* narrower than slideshow */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: #f0f0f0;
-    padding-top: 10px;
-    overflow-y: auto;      /* scroll if many rows */
-  }
-
-  .left img {
-    width: 50%;
-    height: auto;
-    margin-bottom: 10px;
-  }
-
-  table {
-    width: 90%;
-    border-collapse: collapse;
-    table-layout: fixed;
-  }
-
-  th, td {
-    border: 1px solid black;
-    text-align: center;
-    font-size: 2.5rem;
-  }
-
-  th {
-    background-color: black;
-    color: white;
-    padding: 10px;
-  }
-
-  tbody td {
-    height: 2cm;          /* fixed row height */
-    vertical-align: middle;
-  }
-
-  .flash {
-    animation: flashAnim 0.5s ease-in-out alternate 3;
-  }
-
-  @keyframes flashAnim {
-    from { background-color: yellow; }
-    to { background-color: white; }
-  }
-
-  /* Right slideshow panel */
-  .right {
-    width: 60%;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .slideshow img {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    top: 0;
-    left: 100%;
-    opacity: 0;
-    transition: all 1s ease-in-out;
-  }
-
-  .slideshow img.active {
-    left: 0;
-    opacity: 1;
-  }
+body { margin:0; height:100vh; display:flex; font-family:Arial,sans-serif; }
+.left { width:33%; display:flex; flex-direction:column; align-items:center; background:#f0f0f0; padding-top:10px; overflow-y:auto; }
+.left img { width:50%; height:auto; margin-bottom:10px; }
+table { width:90%; border-collapse:collapse; table-layout:fixed; }
+th, td { border:1px solid black; text-align:center; font-size:1.5rem; }
+th { background:black; color:white; padding:10px; }
+tbody td { height:2cm; vertical-align:middle; }
+.flash { animation: flashAnim 0.5s ease-in-out alternate 5; } /* blink 5 times */
+@keyframes flashAnim { from { background-color: yellow; } to { background-color: white; } }
+.right { width:67%; position:relative; overflow:hidden; }
+.slideshow img { position:absolute; width:100%; height:100%; object-fit:cover; top:0; left:100%; opacity:0; transition:all 1s ease-in-out; }
+.slideshow img.active { left:0; opacity:1; }
 </style>
 </head>
 <body>
 
-  <!-- Left Panel -->
-  <div class="left">
-    <img src="LOGOFAROOK1.jpg" alt="Logo">
-    <table>
-      <thead>
-        <tr>
-          <th>Room</th>
-          <th>Token</th>
-        </tr>
-      </thead>
-      <tbody id="roomList">
-        <tr><td colspan="2">Waiting for tokens...</td></tr>
-      </tbody>
-    </table>
-  </div>
+<div class="left">
+  <img src="LOGOFAROOK1.jpg" alt="Logo">
+  <table>
+    <thead>
+      <tr><th>Room</th><th>Token</th></tr>
+    </thead>
+    <tbody id="roomList">
+      <tr><td colspan="2">Waiting for tokens...</td></tr>
+    </tbody>
+  </table>
+</div>
 
-  <!-- Right Panel (Slideshow) -->
-  <div class="right">
-    <div class="slideshow">
-      <img src="Slide1.jpg" class="active">
-      <img src="Slide2.jpg">
-      <img src="Slide3.jpg">
-      <img src="Slide4.jpg">
-      <img src="Slide5.jpg">
-    </div>
+<div class="right">
+  <div class="slideshow">
+    <img src="Slide1.jpg" class="active">
+    <img src="Slide2.jpg">
+    <img src="Slide3.jpg">
   </div>
+</div>
 
-  <audio id="alertSound" src="Ding.mp3"></audio>
+<audio id="alertSound" src="Ding.mp3"></audio>
 
 <script type="module">
-  // ===== Firebase Setup =====
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-  import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyC9FuNjWn8Up4JyjYbABEF2aNjO2bSXdfM",
-    authDomain: "qr-scanner-4458e.firebaseapp.com",
-    projectId: "qr-scanner-4458e",
-    storageBucket: "qr-scanner-4458e.firebasestorage.app",
-    messagingSenderId: "1099262112748",
-    appId: "1:1099262112748:web:a18f206bcf893c894546c9",
-    measurementId: "G-15WXNEPKS9"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyC9FuNjWn8Up4JyjYbABEF2aNjO2bSXdfM",
+  authDomain: "qr-scanner-4458e.firebaseapp.com",
+  projectId: "qr-scanner-4458e",
+  storageBucket: "qr-scanner-4458e.firebasestorage.app",
+  messagingSenderId: "1099262112748",
+  appId: "1:1099262112748:web:a18f206bcf893c894546c9",
+  measurementId: "G-15WXNEPKS9"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-  const roomsCol = collection(db, "rooms");
-  const roomListDiv = document.getElementById("roomList");
-  const alertSound = document.getElementById("alertSound");
+const roomsCol = collection(db, "rooms");
+const activeRoomsQuery = query(roomsCol, where("token", ">", 0));
 
-  let previousTokens = {};
+const roomListDiv = document.getElementById("roomList");
+const alertSound = document.getElementById("alertSound");
 
-  // ===== Live Firestore Listener =====
-  onSnapshot(roomsCol, snapshot => {
-    roomListDiv.innerHTML = "";
-    let hasToken = false;
+let previousTokens = {};
 
-    snapshot.docs.forEach(doc => {
-      const roomNumber = doc.id;
-      const token = doc.data().token;
+onSnapshot(activeRoomsQuery, snapshot => {
+  roomListDiv.innerHTML = "";
+  if(snapshot.empty){
+    roomListDiv.innerHTML = `<tr><td colspan="2">No active tokens</td></tr>`;
+    return;
+  }
 
-      if(token && token > 0){
-        const tr = document.createElement("tr");
-        const tdRoom = document.createElement("td");
-        const tdToken = document.createElement("td");
-        tdRoom.textContent = roomNumber;
-        tdToken.textContent = token;
-        tr.appendChild(tdRoom);
-        tr.appendChild(tdToken);
-        roomListDiv.appendChild(tr);
-        hasToken = true;
+  snapshot.docs.forEach(docSnap => {
+    const roomNumber = docSnap.id;
+    const token = docSnap.data().token || 0;
+    const recallFlag = docSnap.data().recall || false;
 
-        // Flash if first load or changed token
-        if(previousTokens[roomNumber] === undefined || previousTokens[roomNumber] !== token){
-          tdRoom.classList.add("flash");
-          tdToken.classList.add("flash");
-          alertSound.play().catch(()=>{});
-          setTimeout(() => {
-            tdRoom.classList.remove("flash");
-            tdToken.classList.remove("flash");
-          }, 1800);
-        }
-        previousTokens[roomNumber] = token;
-      }
-    });
+    const tr = document.createElement("tr");
+    const tdRoom = document.createElement("td");
+    const tdToken = document.createElement("td");
+    tdRoom.textContent = roomNumber;
+    tdToken.textContent = token;
+    tr.appendChild(tdRoom);
+    tr.appendChild(tdToken);
+    roomListDiv.appendChild(tr);
 
-    if(!hasToken){
-      roomListDiv.innerHTML = `<tr><td colspan="2">No active tokens</td></tr>`;
+    // Trigger flash + alert for both token change OR recall
+    if(previousTokens[roomNumber] !== token || recallFlag){
+      tdRoom.classList.add("flash");
+      tdToken.classList.add("flash");
+      alertSound.play().catch(()=>{});
+      setTimeout(()=>{ tdRoom.classList.remove("flash"); tdToken.classList.remove("flash"); }, 3000); // enough time for 5 blinks
     }
+
+    previousTokens[roomNumber] = token;
+
+    // Clear recall flag after triggering
+   if(recallFlag){
+  const docRef = doc(db, "rooms", roomNumber);
+  setTimeout(() => {
+    updateDoc(docRef, { recall:false }).catch(console.error);
+  }, 10000); // 10 seconds delay
+}
   });
+});
 
-  // Unlock audio on first click
-  document.body.addEventListener("click", () => {
-    alertSound.play().catch(()=>{});
-  }, { once: true });
-
-  // ===== Slideshow =====
-  let slides = document.querySelectorAll('.slideshow img');
-  let currentSlide = 0;
-  setInterval(() => {
-    slides[currentSlide].classList.remove('active');
-    currentSlide = (currentSlide + 1) % slides.length;
-    slides[currentSlide].classList.add('active');
-  }, 5000);
+// Slideshow
+let slides = document.querySelectorAll('.slideshow img');
+let currentSlide = 0;
+setInterval(()=>{
+  slides[currentSlide].classList.remove('active');
+  currentSlide = (currentSlide + 1) % slides.length;
+  slides[currentSlide].classList.add('active');
+},5000);
 
 </script>
-
 </body>
 </html>
