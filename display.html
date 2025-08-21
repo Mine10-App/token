@@ -16,6 +16,10 @@ tbody td { height:2cm; vertical-align:middle; }
 .right { width:55%; position:relative; overflow:hidden; }
 .slideshow img { position:absolute; width:100%; height:100%; object-fit:cover; top:0; left:100%; opacity:0; transition:all 1s ease-in-out; }
 .slideshow img.active { left:0; opacity:1; }
+
+/* Force column widths */
+th[colspan="2"], td[colspan="2"] { width:70%; }
+th:not([colspan]), td:not([colspan]) { width:30%; }
 </style>
 </head>
 <body>
@@ -23,19 +27,19 @@ tbody td { height:2cm; vertical-align:middle; }
 <div class="left">
   <img src="LOGOFAROOK1.jpg" alt="Logo" style="width: 100%; height: auto;">
   <table>
-  <thead>
-    <tr>
-      <th colspan="2" style="width:70%;">Room</th>
-      <th style="width:30%;">Token</th>
-    </tr>
-  </thead>
-  <tbody id="roomList">
-    <tr>
-      <td colspan="2">Waiting for tokens...</td>
-      <td>-</td>
-    </tr>
-  </tbody>
-</table>
+    <thead>
+      <tr>
+        <th colspan="2">Room</th>
+        <th>Token</th>
+      </tr>
+    </thead>
+    <tbody id="roomList">
+      <tr>
+        <td colspan="2">Waiting for tokens...</td>
+        <td>-</td>
+      </tr>
+    </tbody>
+  </table>
 </div>
 
 <div class="right">
@@ -55,7 +59,6 @@ tbody td { height:2cm; vertical-align:middle; }
     <img src="Slide13.jpg">
     <img src="Slide14.jpg">
     <img src="Slide15.jpg">
-    
   </div>
 </div>
 
@@ -89,7 +92,7 @@ let previousTokens = {};
 onSnapshot(activeRoomsQuery, snapshot => {
   roomListDiv.innerHTML = "";
   if(snapshot.empty){
-    roomListDiv.innerHTML = `<tr><td colspan="2">No active tokens</td></tr>`;
+    roomListDiv.innerHTML = `<tr><td colspan="2">No active tokens</td><td>-</td></tr>`;
     return;
   }
 
@@ -99,10 +102,14 @@ onSnapshot(activeRoomsQuery, snapshot => {
     const recallFlag = docSnap.data().recall || false;
 
     const tr = document.createElement("tr");
+
     const tdRoom = document.createElement("td");
-    const tdToken = document.createElement("td");
+    tdRoom.setAttribute("colspan", "2");
     tdRoom.textContent = roomNumber;
+
+    const tdToken = document.createElement("td");
     tdToken.textContent = token;
+
     tr.appendChild(tdRoom);
     tr.appendChild(tdToken);
     roomListDiv.appendChild(tr);
@@ -112,18 +119,18 @@ onSnapshot(activeRoomsQuery, snapshot => {
       tdRoom.classList.add("flash");
       tdToken.classList.add("flash");
       alertSound.play().catch(()=>{});
-      setTimeout(()=>{ tdRoom.classList.remove("flash"); tdToken.classList.remove("flash"); }, 3000); // enough time for 5 blinks
+      setTimeout(()=>{ tdRoom.classList.remove("flash"); tdToken.classList.remove("flash"); }, 3000);
     }
 
     previousTokens[roomNumber] = token;
 
     // Clear recall flag after triggering
-   if(recallFlag){
-  const docRef = doc(db, "rooms", roomNumber);
-  setTimeout(() => {
-    updateDoc(docRef, { recall:false }).catch(console.error);
-  }, 10000); // 10 seconds delay
-}
+    if(recallFlag){
+      const docRef = doc(db, "rooms", roomNumber);
+      setTimeout(() => {
+        updateDoc(docRef, { recall:false }).catch(console.error);
+      }, 10000);
+    }
   });
 });
 
@@ -139,12 +146,3 @@ setInterval(()=>{
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
