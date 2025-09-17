@@ -109,6 +109,23 @@ const alertSound = document.getElementById("alertSound");
 
 let previousTokens = {};
 
+// 🔊 Helper: always restart sound
+function playAlert() {
+  alertSound.pause();
+  alertSound.currentTime = 0;
+  alertSound.play().catch(err => {
+    console.warn("Audio play failed:", err);
+  });
+}
+
+// 🔓 Unlock audio after first click (required by Chrome/Safari policies)
+document.addEventListener("click", () => {
+  alertSound.play().then(() => {
+    alertSound.pause();
+    alertSound.currentTime = 0;
+  }).catch(err => console.warn("First interaction unlock failed:", err));
+}, { once:true });
+
 onSnapshot(activeRoomsQuery, snapshot => {
   roomListDiv.innerHTML = "";
   if(snapshot.empty){
@@ -138,8 +155,11 @@ onSnapshot(activeRoomsQuery, snapshot => {
     if(previousTokens[roomNumber] !== token || recallFlag){
       tdRoom.classList.add("flash");
       tdToken.classList.add("flash");
-      alertSound.play().catch(()=>{});
-      setTimeout(()=>{ tdRoom.classList.remove("flash"); tdToken.classList.remove("flash"); }, 3000);
+      playAlert();  // ✅ fixed sound trigger
+      setTimeout(()=>{ 
+        tdRoom.classList.remove("flash"); 
+        tdToken.classList.remove("flash"); 
+      }, 3000);
     }
 
     previousTokens[roomNumber] = token;
@@ -166,4 +186,3 @@ setInterval(()=>{
 </script>
 </body>
 </html>
-
